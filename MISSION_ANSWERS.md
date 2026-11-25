@@ -102,3 +102,22 @@ Checker đầy đủ chạy trong Python 3.11.18 / POSIX WSL đã xác nhận:
 - Không hoàn tất kiểm tra `docker run`/`docker stop`: Docker Desktop WSL báo filesystem read-only, sau đó báo không thể provision data disk `/dev/sde`.
 
 Vì vậy trạng thái hiện tại là **10/12 tiêu chí checker đạt; còn 2 kiểm tra phụ thuộc Docker run/stop chưa đạt do Docker Desktop**, không phải do checker bị sửa. `06-lab-complete/check_production_ready.py` được giữ nguyên.
+
+## CP6 — Cloud Deployment
+
+- **Public URL:** https://k5-day14-agent-k8sx.onrender.com
+- **Platform:** Render Blueprint, triển khai Docker từ `06-lab-complete/` ở Singapore; Blueprint tạo web service `k5-day14-agent` và Key Value `k5-day14-redis`. `AGENT_API_KEY` được Render sinh và giữ dưới dạng secret.
+- **Ảnh:** [Dashboard](screenshots/dashboard.jpg), [Service chạy `/health`](screenshots/running.jpg), [Kiểm tra `/ready`](screenshots/test.jpg).
+
+Kết quả kiểm tra trực tiếp trên service ngày 2026-11-25:
+
+| Request | Kết quả |
+|---|---:|
+| `GET /health` | 200 — `status=ok`, `environment=production` |
+| `GET /ready` | 200 — `ready=true` |
+| `POST /ask` không có API key | 401 |
+| `POST /ask` có API key hợp lệ | 200 |
+
+**Railway và Render:** `06-lab-complete/railway.toml` chọn Dockerfile builder, health check `/health` với timeout 30 giây và restart khi lỗi. `06-lab-complete/render.yaml` khai báo cụ thể web service, thư mục build, region, gói free, biến môi trường, API key sinh tự động, health check và Redis nội bộ bằng Key Value. Render Blueprint vì vậy mô tả cả service lẫn dependency Redis trong cùng một cấu hình.
+
+**Cloud Run (Exercise 3.3):** Cloud Build chạy `pytest`, build image gắn tag commit SHA và `latest`, rồi push lên Container Registry. Khi các bước trước thành công, pipeline deploy service `ai-agent` lên Cloud Run tại `asia-southeast1`, public, min 1/max 10 instance, 512 MiB RAM, 1 CPU và timeout 60 giây. API key được lấy từ Secret Manager; `service.yaml` khai báo autoscaling, concurrency 80 cùng probe `/health` và `/ready`.
