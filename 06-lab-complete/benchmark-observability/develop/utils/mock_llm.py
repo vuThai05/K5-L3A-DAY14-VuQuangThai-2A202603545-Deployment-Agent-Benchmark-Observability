@@ -84,6 +84,13 @@ KNOWLEDGE_BASE: list[tuple[list[str], str]] = [
     (["load balancer", "nginx", "round-robin"],
      "Load balancer như Nginx phân phối request tới nhiều instance theo round-robin, "
      "và bỏ qua instance không healthy."),
+    (["jwt", "api key", "api-key"],
+     "JWT là token có chữ ký số để xác thực, thường có thời hạn hết hạn và có thể chứa claims. "
+     "API key là một bí mật dùng chung gửi trong header; nó thường không mang claims hay thời hạn "
+     "tự thân, nên cần xoay vòng và thu hồi riêng. Chữ ký JWT giúp kiểm tra token có bị sửa đổi không."),
+    (["kubernetes hpa", "hpa", "horizontal pod autoscaler"],
+     "Kubernetes HPA điều chỉnh số replica dựa trên mức sử dụng CPU, memory và custom metrics "
+     "so với target. Khi tải tăng vượt target, HPA tăng replica; khi tải giảm, HPA có thể giảm replica."),
     (["p95", "p99", "percentile", "tail latency", "trung bình"],
      "Percentile p95 là ngưỡng mà 95% request nhanh hơn. Latency trung bình (average) che giấu "
      "tail latency, nên SLO thường đặt theo p95 hoặc p99."),
